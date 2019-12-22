@@ -1,0 +1,15 @@
+{
+  "name": "build-your-own-react",
+  "version": "1.0.0",
+  "repository": "https://github.com/KensukeTakahara/build-your-own-react.git",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --colors --config ./webpack.config.js"
+  },
+  "devDependencies": {
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.4",
+    "webpack-cli": "^3.3.10"
+  }
+}
