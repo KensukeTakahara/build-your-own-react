@@ -7,6 +7,7 @@
     "build": "webpack --colors --config ./webpack.config.js"
   },
   "devDependencies": {
+    "@types/react": "^16.9.17",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.4",
     "webpack": "^4.41.4",
