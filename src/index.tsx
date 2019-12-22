@@ -4,6 +4,7 @@ const element = (
   <div id="foo">
     <p>bar</p>
     <b />
+    <button onClick={() => console.log("clicked")}>button</button>
   </div>
 );
 
