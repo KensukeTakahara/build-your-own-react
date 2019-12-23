@@ -1,7 +1,7 @@
 // 拡張を頑張れば有効なタグの種類を指定できる
 const TEXT_ELEMENT = "TEXT_ELEMENT" as const;
 type TagType = string;
-type ElementType = typeof TEXT_ELEMENT | TagType;
+type ElementType = typeof TEXT_ELEMENT | TagType | Function;
 
 type EffectTagType = "UPDATE" | "PLACEMENT" | "DELETION";
 
@@ -59,6 +59,10 @@ const isNew = (prev: Props, next: Props) => (key: string) =>
 const isGone = (next: Props) => (key: string) => !(key in next);
 
 const createDom = (element: Element) => {
+  if (element.type instanceof Function) {
+    return null;
+  }
+
   if (element.type === TEXT_ELEMENT) {
     return document.createTextNode(element.props.nodeValue!);
   }
@@ -123,7 +127,12 @@ const commitWork = (fiber: Fiber) => {
     return;
   }
 
-  const domParent = fiber.parent.dom;
+  let domParentFiber = fiber.parent;
+  while (!domParentFiber.dom) {
+    domParentFiber = domParentFiber.parent;
+  }
+
+  const domParent = domParentFiber.dom;
   if (fiber.effectTag === "PLACEMENT" && fiber.dom !== null) {
     domParent.appendChild(fiber.dom);
   } else if (fiber.effectTag === "UPDATE" && fiber.dom !== null) {
@@ -133,6 +142,14 @@ const commitWork = (fiber: Fiber) => {
   }
   commitWork(fiber.child);
   commitWork(fiber.sibling);
+};
+
+const commitDeletion = (fiber: Fiber, domParent: HTMLElement | Text) => {
+  if (fiber.dom) {
+    domParent.removeChild(fiber.dom);
+  } else {
+    commitDeletion(fiber.child, domParent);
+  }
 };
 
 const requestIdleCallbackFunc = (window as any).requestIdleCallback;
@@ -173,12 +190,12 @@ const workLoop = (deadline: any) => {
 requestIdleCallbackFunc(workLoop);
 
 const performUnitOfWork = (fiber: Fiber) => {
-  if (!fiber.dom) {
-    fiber.dom = createDom(fiber);
+  const isFunctionComponent = fiber.type instanceof Function;
+  if (isFunctionComponent) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateHostComponent(fiber);
   }
-
-  const elements = fiber.props.children;
-  reconcileChildren(fiber, elements);
 
   if (fiber.child) {
     return fiber.child;
@@ -192,6 +209,21 @@ const performUnitOfWork = (fiber: Fiber) => {
 
     nextFiber = nextFiber.parent;
   }
+};
+
+const updateFunctionComponent = (fiber: Fiber) => {
+  if (fiber.type instanceof Function) {
+    const children = [fiber.type(fiber.props)];
+    reconcileChildren(fiber, children);
+  }
+};
+
+const updateHostComponent = (fiber: Fiber) => {
+  if (!fiber.dom) {
+    fiber.dom = createDom(fiber);
+  }
+
+  reconcileChildren(fiber, fiber.props.children);
 };
 
 const reconcileChildren = (wipFiber: Fiber, elements: Element[]) => {

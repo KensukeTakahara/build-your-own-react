@@ -1,12 +1,8 @@
 import React from "./myReact";
 
-const element = (
-  <div id="foo">
-    <p>bar</p>
-    <b />
-    <button onClick={() => console.log("clicked")}>button</button>
-  </div>
-);
+const App = (props: any) => <h1>Hi {props.name}</h1>;
+
+const element = <App name="foo" />;
 
 const container = document.getElementById("root");
 React.render(element, container);
