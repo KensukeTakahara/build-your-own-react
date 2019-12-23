@@ -1,4 +1,3 @@
-// 拡張を頑張れば有効なタグの種類を指定できる
 export const TEXT_ELEMENT = 'TEXT_ELEMENT' as const
 type TagType = string
 export type ElementType = typeof TEXT_ELEMENT | TagType | Function
@@ -8,7 +7,7 @@ type EffectTagType = 'UPDATE' | 'PLACEMENT' | 'DELETION'
 export interface Props {
   nodeValue?: string
   children: Element[]
-  [s: string]: any
+  [key: string]: any
 }
 
 export interface Element {
