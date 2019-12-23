@@ -16,6 +16,8 @@ interface Element {
   props: Props;
 }
 
+type Hook<T> = { state: T; queue: ((arg: T) => void)[] };
+
 type Fiber =
   | ({
       dom: HTMLElement | Text;
@@ -24,6 +26,7 @@ type Fiber =
       child?: Fiber;
       sibling?: Fiber;
       effectTag: EffectTagType;
+      hooks?: Hook<any>[];
     } & Element)
   | null;
 
@@ -211,11 +214,47 @@ const performUnitOfWork = (fiber: Fiber) => {
   }
 };
 
+let wipFiber: Fiber = null;
+let hookIndex: number = 0;
+
 const updateFunctionComponent = (fiber: Fiber) => {
   if (fiber.type instanceof Function) {
+    wipFiber = fiber;
+    hookIndex = 0;
+    wipFiber.hooks = [];
     const children = [fiber.type(fiber.props)];
     reconcileChildren(fiber, children);
   }
+};
+
+const useState = <T>(initial: T) => {
+  const oldHook =
+    wipFiber.alternate &&
+    wipFiber.alternate.hooks &&
+    wipFiber.alternate.hooks[hookIndex];
+  const hook = {
+    state: oldHook ? oldHook.state : initial,
+    queue: [] as ((arg: T) => void)[]
+  };
+
+  const actions = oldHook ? oldHook.queue : [];
+  actions.forEach(action => {
+    hook.state = action(hook.state);
+  });
+
+  const setState = (action: (arg: T) => void) => {
+    hook.queue.push(action);
+    wipRoot = {
+      ...currentRoot,
+      alternate: currentRoot
+    };
+    nextUnitOfWork = wipRoot;
+    deletions = [];
+  };
+
+  wipFiber.hooks.push(hook);
+  hookIndex++;
+  return [hook.state, setState];
 };
 
 const updateHostComponent = (fiber: Fiber) => {
@@ -231,7 +270,7 @@ const reconcileChildren = (wipFiber: Fiber, elements: Element[]) => {
   let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
   let prevSibling: Fiber = null;
 
-  while (index < elements.length || oldFiber !== null) {
+  while (index < elements.length || oldFiber) {
     const element = elements[index];
     let newFiber: Fiber = null;
 
@@ -270,7 +309,7 @@ const reconcileChildren = (wipFiber: Fiber, elements: Element[]) => {
 
     if (index === 0) {
       wipFiber.child = newFiber;
-    } else {
+    } else if (element) {
       prevSibling.sibling = newFiber;
     }
 
@@ -281,5 +320,6 @@ const reconcileChildren = (wipFiber: Fiber, elements: Element[]) => {
 
 export default {
   createElement,
-  render
+  render,
+  useState
 };

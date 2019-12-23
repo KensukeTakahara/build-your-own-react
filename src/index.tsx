@@ -1,8 +1,11 @@
 import React from "./myReact";
 
-const App = (props: any) => <h1>Hi {props.name}</h1>;
+const Counter = () => {
+  const [state, setState] = React.useState(1);
+  return <h1 onClick={() => setState((c: any) => c + 1)}>Count: {state}</h1>;
+};
 
-const element = <App name="foo" />;
+const element = <Counter />;
 
 const container = document.getElementById("root");
 React.render(element, container);
