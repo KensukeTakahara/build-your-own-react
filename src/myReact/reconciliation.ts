@@ -1,18 +1,15 @@
-import { Element, Fiber } from "./model";
+import { Element, Fiber } from './model'
 
-export const reconcileChildren = (deletions: Fiber[]) => (
-  wipFiber: Fiber,
-  elements: Element[]
-) => {
-  let index = 0;
-  let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
-  let prevSibling: Fiber = null;
+export const reconcileChildren = (deletions: Fiber[]) => (wipFiber: Fiber, elements: Element[]) => {
+  let index = 0
+  let oldFiber = wipFiber.alternate && wipFiber.alternate.child
+  let prevSibling: Fiber = null
 
   while (index < elements.length || oldFiber) {
-    const element = elements[index];
-    let newFiber: Fiber = null;
+    const element = elements[index]
+    let newFiber: Fiber = null
 
-    const sameType = oldFiber && element && oldFiber.type === element.type;
+    const sameType = oldFiber && element && oldFiber.type === element.type
 
     if (sameType) {
       newFiber = {
@@ -21,8 +18,8 @@ export const reconcileChildren = (deletions: Fiber[]) => (
         dom: oldFiber.dom,
         parent: wipFiber,
         alternate: oldFiber,
-        effectTag: "UPDATE"
-      };
+        effectTag: 'UPDATE'
+      }
     }
 
     if (element && !sameType) {
@@ -32,26 +29,26 @@ export const reconcileChildren = (deletions: Fiber[]) => (
         dom: null,
         parent: wipFiber,
         alternate: null,
-        effectTag: "PLACEMENT"
-      };
+        effectTag: 'PLACEMENT'
+      }
     }
 
     if (oldFiber && !sameType) {
-      oldFiber.effectTag = "DELETION";
-      deletions.push(oldFiber);
+      oldFiber.effectTag = 'DELETION'
+      deletions.push(oldFiber)
     }
 
     if (oldFiber) {
-      oldFiber = oldFiber.sibling;
+      oldFiber = oldFiber.sibling
     }
 
     if (index === 0) {
-      wipFiber.child = newFiber;
+      wipFiber.child = newFiber
     } else if (element) {
-      prevSibling.sibling = newFiber;
+      prevSibling.sibling = newFiber
     }
 
-    prevSibling = newFiber;
-    index++;
+    prevSibling = newFiber
+    index++
   }
-};
+}
