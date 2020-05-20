@@ -1,19 +1,19 @@
 module.exports = {
-  entry: "./src/index.tsx",
+  entry: './src/index.tsx',
   output: {
-    filename: "./bundle.js",
+    filename: './bundle.js',
     path: `${__dirname}/dist`
   },
   resolve: {
-    extensions: [".ts", ".js"]
+    extensions: ['.ts', '.js']
   },
   module: {
     rules: [
       {
         test: /\.(ts|tsx)$/,
-        use: "ts-loader"
+        use: 'ts-loader'
       }
     ]
   },
-  mode: "development"
-};
+  mode: 'development'
+}
