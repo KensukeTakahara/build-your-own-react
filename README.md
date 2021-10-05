@@ -18,8 +18,7 @@
 
 ## 解説記事
 
-- [前半](https://qiita.com/KensukeTakahara/items/9c54e68fea06ce3e4efe)
-- 後半 まだです……
+- [Qiita](https://qiita.com/KensukeTakahara/items/9c54e68fea06ce3e4efe)
 
 ## ビルド手順
 
