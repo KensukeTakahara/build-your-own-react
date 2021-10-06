@@ -21,10 +21,10 @@ export type Fiber =
   | ({
       dom: HTMLElement | Text
       alternate: Fiber
+      effectTag: EffectTagType
       parent?: Fiber
       child?: Fiber
       sibling?: Fiber
-      effectTag: EffectTagType
       hooks?: Hook<any>[]
     } & Element)
   | null
